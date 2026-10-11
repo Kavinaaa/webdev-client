@@ -6,15 +6,15 @@ export default function Signup() {
       <h1 className="mb-3 text-2xl font-semibold">Sign up</h1>
       <input
         placeholder="username"
-        className="wd-username mb-2 w-full rounded border border-neutral-300 px-3 py-2"
         defaultValue="ada"
+        className="wd-username mb-2 w-full rounded border border-neutral-300 px-3 py-2"
       />
       <br />
       <input
         placeholder="password"
         type="password"
-        className="wd-password mb-2 w-full rounded border border-neutral-300 px-3 py-2"
         defaultValue="123"
+        className="wd-password mb-2 w-full rounded border border-neutral-300 px-3 py-2"
       />
       <br />
       <input
@@ -23,14 +23,16 @@ export default function Signup() {
         className="wd-verify-password mb-2 w-full rounded border border-neutral-300 px-3 py-2"
       />
       <br />
-      <Link 
-      id="wd-sinup-btn"
-      href="/account/profile"
-      className="mb-2 block w-full rounded bg-blue-600 px-3 py-2 text-center text-white no-underline">
-        Sign Up
+      <Link
+        id="wd-signup-btn"
+        href="/account/profile"
+        className="mb-2 block w-full rounded bg-blue-600 px-3 py-2 text-center text-white no-underline"
+      >
+        Sign up
       </Link>
-      <br />
-      <Link href="/account/signin">Sign in</Link>
+      <Link id="wd-signin-link" href="/account/signin">
+        Sign in
+      </Link>
     </div>
   );
 }
