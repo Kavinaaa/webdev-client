@@ -1,14 +1,34 @@
+"use client";
+import { useState } from "react";
 import Link from "next/link";
-import * as db from "../../../../database";
-
-export default async function AssignmentEditor({
-  params,
-}: {
-  params: Promise<{ cid: string; aid: string }>;
-}) {
-  const { cid, aid } = await params;
-  const assignment = db.assignments.find((a) => a._id === aid);
-
+import { useParams, useRouter } from "next/navigation";
+import {
+  emptyAssignment,
+  useAssignmentsStore,
+  type Assignment,
+} from "../../../../store/assignmentsStore";
+export default function AssignmentEditor() {
+  const { cid, aid } = useParams();
+  const courseId = String(cid);
+  const assignmentId = String(aid);
+  const router = useRouter();
+  const assignments = useAssignmentsStore((state) => state.assignments);
+  const addAssignment = useAssignmentsStore((state) => state.addAssignment);
+  const updateAssignment = useAssignmentsStore(
+    (state) => state.updateAssignment,
+  );
+  const existing = assignments.find((a) => a._id === assignmentId);
+  const [assignment, setAssignment] = useState<Assignment>(
+    existing ?? { ...emptyAssignment, course: courseId },
+  );
+  const save = () => {
+    if (assignmentId === "new") {
+      addAssignment(assignment);
+    } else {
+      updateAssignment(assignment);
+    }
+    router.push(`/courses/${courseId}/assignments`);
+  };
   return (
     <div id="wd-assignments-editor" className="max-w-3xl">
       <div className="mb-4">
@@ -17,33 +37,38 @@ export default async function AssignmentEditor({
         </label>
         <input
           id="wd-name"
-          defaultValue={assignment?.title ?? ""}
+          value={assignment.title}
+          onChange={(e) => setAssignment({ ...assignment, title: e.target.value })}
           className="w-full rounded border border-neutral-300 px-3 py-2"
         />
         <div id="wd-assignment-id" className="mt-1 text-sm text-neutral-600">
-          Assignment id: {aid}
+          Assignment id: {assignmentId}
         </div>
       </div>
-
       <div className="mb-4">
         <textarea
           id="wd-description"
-          defaultValue={assignment?.description ?? ""}
+          value={assignment.description}
+          onChange={(e) =>
+            setAssignment({ ...assignment, description: e.target.value })
+          }
           className="h-36 w-full rounded border border-neutral-300 px-3 py-2"
         />
       </div>
-
       <div className="mb-4 flex items-center gap-4">
         <label htmlFor="wd-points" className="w-1/4 text-right">
           Points
         </label>
         <input
           id="wd-points"
-          defaultValue={assignment?.points ?? 100}
+          type="number"
+          value={assignment.points}
+          onChange={(e) =>
+            setAssignment({ ...assignment, points: Number(e.target.value) })
+          }
           className="flex-1 rounded border border-neutral-300 px-3 py-2"
         />
       </div>
-
       <div className="mb-4 flex items-center gap-4">
         <label htmlFor="wd-group" className="w-1/4 text-right">
           Assignment Group
@@ -59,7 +84,6 @@ export default async function AssignmentEditor({
           <option value="PROJECT">PROJECT</option>
         </select>
       </div>
-
       <div className="mb-4 flex items-center gap-4">
         <label htmlFor="wd-display-grade-as" className="w-1/4 text-right">
           Display Grade as
@@ -74,7 +98,6 @@ export default async function AssignmentEditor({
           <option value="COMPLETE_INCOMPLETE">Complete/Incomplete</option>
         </select>
       </div>
-
       <div className="mb-4 flex items-start gap-4">
         <label htmlFor="wd-submission-type" className="w-1/4 pt-2 text-right">
           Submission Type
@@ -116,7 +139,6 @@ export default async function AssignmentEditor({
           </div>
         </div>
       </div>
-
       <div className="mb-4 flex items-start gap-4">
         <span className="w-1/4 pt-4 text-right">Assign</span>
         <div className="flex-1 rounded border border-neutral-300 p-4">
@@ -134,7 +156,8 @@ export default async function AssignmentEditor({
           <input
             id="wd-due-date"
             type="date"
-            defaultValue={assignment?.due}
+            value={assignment.due}
+            onChange={(e) => setAssignment({ ...assignment, due: e.target.value })}
             className="mb-4 w-full rounded border border-neutral-300 px-3 py-2"
           />
           <div className="flex gap-4">
@@ -148,7 +171,10 @@ export default async function AssignmentEditor({
               <input
                 id="wd-available-from"
                 type="date"
-                defaultValue={assignment?.available}
+                value={assignment.available}
+                onChange={(e) =>
+                  setAssignment({ ...assignment, available: e.target.value })
+                }
                 className="w-full rounded border border-neutral-300 px-3 py-2"
               />
             </div>
@@ -162,14 +188,16 @@ export default async function AssignmentEditor({
               <input
                 id="wd-available-until"
                 type="date"
-                defaultValue="2026-05-20"
+                value={assignment.until ?? ""}
+                onChange={(e) =>
+                  setAssignment({ ...assignment, until: e.target.value })
+                }
                 className="w-full rounded border border-neutral-300 px-3 py-2"
               />
             </div>
           </div>
         </div>
       </div>
-
       <div className="mb-4">
         <label htmlFor="wd-ai-editor-notes" className="mb-1 block font-medium">
           Sample notes
@@ -179,23 +207,23 @@ export default async function AssignmentEditor({
           className="h-36 w-full rounded border border-neutral-300 px-3 py-2"
         />
       </div>
-
       <hr className="mb-4" />
       <div className="flex justify-end gap-2">
         <Link
-          href={`/courses/${cid}/assignments`}
+          href={`/courses/${courseId}/assignments`}
           id="wd-cancel"
           className="rounded border border-neutral-300 bg-neutral-100 px-4 py-2 text-black no-underline"
         >
           Cancel
         </Link>
-        <Link
-          href={`/courses/${cid}/assignments`}
+        <button
+          type="button"
+          onClick={save}
           id="wd-save"
-          className="rounded bg-red-600 px-4 py-2 text-white no-underline"
+          className="rounded bg-red-600 px-4 py-2 text-white"
         >
           Save
-        </Link>
+        </button>
       </div>
     </div>
   );
