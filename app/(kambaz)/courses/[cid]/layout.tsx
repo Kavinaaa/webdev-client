@@ -25,12 +25,14 @@ export default function CoursesLayout({
         (e) => e.user === currentUser._id && e.course === courseId,
       )
     : false;
-  useEffect(() => {
-    if (!enrolled) {
-      router.push("/dashboard");
-    }
-  }, [enrolled, router]);
-  if (!enrolled) return null;
+   const blocked = currentUser !== null && !enrolled;
+   useEffect(() => {
+     if (blocked) {
+       router.push("/dashboard");
+     }
+   }, [blocked, router]);
+   if (blocked) return null;
+
   return (
     <div id="wd-courses">
       <h2 className="text-2xl font-semibold text-red-600">
